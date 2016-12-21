@@ -28,9 +28,7 @@ Point Disk::randomPoint() const {
     return {rr * cos(t) + z.x, rr * sin(t) + z.y};
 }
 
-Disk Disk::create(const Point &a) {
-    return {a, 0};
-}
+Disk Disk::create(const Point &a) { return {a, 1e-10}; }
 
 Disk Disk::create(const Point &a, const Point &b) {
     Point z = {(a.x + b.x) / 2, (a.y + b.y) / 2};
@@ -53,4 +51,19 @@ Disk Disk::create(const Point &a, const Point &b, const Point &c) {
     Point z = {k1 - m1 * zy, zy};
     double r = z.dist(a);
     return {z, r};
+}
+
+Disk Disk::create(const std::vector<Point> &points) {
+    assert(points.size() <= 3 && "Too many points");
+    switch (points.size()) {
+    case 1:
+        return Disk::create(points[0]);
+    case 2:
+        return Disk::create(points[0], points[1]);
+    case 3:
+        return Disk::create(points[0], points[1], points[2]);
+    case 0:
+    default:
+        return {{0, 0}, 0};
+    }
 }

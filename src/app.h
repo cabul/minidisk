@@ -1,53 +1,47 @@
 #ifndef APP_H
 #define APP_H
 
-#include <cstdlib>
-#include <ctime>
-
 #include <vector>
-
-#include <SFML/Graphics.hpp>
 
 #include "geometry.h"
 
 class App {
-    static constexpr int pointSize = 4;
-    static constexpr int pointDetail = 128;
-    static constexpr int pointStroke = 2;
+  public:
+    typedef std::vector<Point>::const_iterator PointIter;
+    typedef std::vector<Point> RSet;
 
-    typedef std::vector<Point>::const_iterator PointRef;
-
-    struct Frame {
-        PointRef pnext;
-        std::vector<Point> rset;
-        Disk disk;
+    class Backend {
+      public:
+        virtual void render(const std::vector<Point> &points, Disk disk,
+                            const std::vector<Point> &rset,
+                            const PointIter &pt) = 0;
     };
 
-    typedef std::vector<Frame>::const_iterator FrameRef;
+  private:
 
-    std::vector<Frame> frames;
+    bool dirty = false;
 
-    int size, padding;
+    Backend &backend;
+
     std::vector<Point> points;
-    Disk disk = {{0, 0}, 0};
 
-    FrameRef curFrame;
+    Disk the_disk;
+    std::vector<Point> the_rset;
 
-    void redraw(sf::RenderWindow &window);
+    Disk minidisk(PointIter pnext, RSet rset);
 
-    void seedPoints(int count = 10);
-    void addPoint(int x, int y);
-    void removePoint(int x, int y);
-
-    void reset();
-
-    void update();
-    void minidisk(Frame frame);
+    bool checkDisk();
+    bool checkRset(Point pt);
 
   public:
-    App(int size, int padding = 10) : size(size), padding(padding) {}
+    App(Backend &backend) : backend(backend){};
 
-    void start();
+    void randomPoints(int count);
+    void addPoint(double x, double y);
+    void removePoint(double x, double y);
+    void reset();
+
+    Disk run();
 };
 
 #endif // APP_H
